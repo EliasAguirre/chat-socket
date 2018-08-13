@@ -15,6 +15,32 @@ $(function(){
   const $messageBox = $('#message');
   const $chat = $('#chat');
 
+  //obtaining DOM. elements from interface (ids)
+  //DOM being nickname-form, chat etc
+  //jQuery to obtain form from HTML (index.html)
+  const $nameError = $('#nameError');
+  const $nameForm = $('#nameForm');
+  const $nickname = $('#nickname');
+
+  const $users = $('#usernames');
+
+  $nameForm.submit(e => {
+    e.preventDefault();
+    //validating and sending through sockets, w callback to see
+    //if response is valid or not
+    socket.emit('new user', $nickname.val(), function(data){
+      if(data){
+        $('#nameWrap').hide();
+        $('#contentWrap').show();
+      }else{
+        //error if cant find user
+        $nameError.html(`<div class="alert alert-danger">Username Already Exists</div>`);
+      }
+      //when data back
+      $nickname.val('');
+    });
+  });
+
   //capture events
 
   //since submit made page refresh, and we dont want that
@@ -35,6 +61,14 @@ $(function(){
   //listen to new event, whatever event we want, in this case
   //we want to listen to 'send message' from server side
   socket.on('new message', function(data){
-    $chat.append(data + '<br/>')
+    $chat.append('<b>' + data.name + '</b>: ' + data.msg + '<br/>');
+  });
+
+  socket.on('usernames', function(data){
+    let html = '';
+    for (let i = 0 ; i < data.length ; i++){
+      html += `<p><i class="fas fa-user"></i>${data[i]}</p>`
+    }
+    $users.html(html);
   });
 })

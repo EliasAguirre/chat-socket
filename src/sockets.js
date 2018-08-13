@@ -12,8 +12,23 @@
 //send connection of server as parameter
 module.exports = function (io) {
 
+  //temporary use of server memory because no database is being used
+  let nicknames = [];
+
    io.on('connection', socket => {
      console.log('new user connected');
+
+     //recieving data plus a callback function which takes the data
+     socket.on('new user', (data, cb) => {
+       console.log(data);
+       if(nicknames.indexOf(data) != -1){
+         cb(false);
+       } else{
+         cb(true);
+         socket.nickname = data;
+         nicknames.push(socket.nickname);
+         updateNames()       }
+     });
 
      //listen to event from client, exactly same NAME
      //event waiting for here is send message
@@ -30,8 +45,25 @@ module.exports = function (io) {
 
        //new event to send to everyone
        //just make sure all clients are ready to receive 'new message', goto main.js again
-       io.sockets.emit('new message', data);
+       io.sockets.emit('new message', {
+         msg: data,
+         name: socket.nickname
+       });
      });
+
+     //event for removing name when user disconnects
+     socket.on('disconnect', function(data){
+       if(!socket.nickname){
+         return;
+       }else{
+         nicknames.splice(nicknames.indexOf(socket.nickname), 1);
+         updateNames();
+       }
+     });
+
+     function updateNames(){
+       io.sockets.emit('usernames', nicknames);
+     }
 
    });
 }
