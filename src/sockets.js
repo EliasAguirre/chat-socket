@@ -13,7 +13,9 @@
 module.exports = function (io) {
 
   //temporary use of server memory because no database is being used
-  let nicknames = [];
+  let users = {
+
+  };
 
    io.on('connection', socket => {
      console.log('new user connected');
@@ -21,19 +23,19 @@ module.exports = function (io) {
      //recieving data plus a callback function which takes the data
      socket.on('new user', (data, cb) => {
        console.log(data);
-       if(nicknames.indexOf(data) != -1){
+       if(data in users){
          cb(false);
        } else{
          cb(true);
          socket.nickname = data;
-         nicknames.push(socket.nickname);
-         updateNames()       }
+         users[socket.nickname] = socket; //socket value is every username contains all info in sockets
+         updateNames();       }
      });
 
      //listen to event from client, exactly same NAME
      //event waiting for here is send message
      //on that event we will receive data ($messageBox.val())
-     socket.on('send message', function (data){
+     socket.on('send message', function (data, cb){
        console.log(data);
        //NOW, RETRANSMIT TO ALL USERS IN APPLICATION FROM SERVER
        //socket is just the connection from one client to the SERVER
@@ -43,12 +45,36 @@ module.exports = function (io) {
             //const io = socketio.listen(server);
        //io has all clients connected
 
-       //new event to send to everyone
-       //just make sure all clients are ready to receive 'new message', goto main.js again
-       io.sockets.emit('new message', {
-         msg: data,
-         name: socket.nickname
-       });
+       //Private messages
+       var mssg = data.trim();
+
+       if (mssg.substr(0,3) === "/p "){
+         mssg = mssg.substr(3);
+         const index = mssg.indexOf(" ");
+         if (index != -1){
+           var name = mssg.substring(0, index);
+           var message = mssg.substring(index + 1);
+           if(name in users){
+             users[name].emit('private', {
+               message,
+               nick: socket.nickname
+             });
+           } else{
+             //if user doesnt exist, send this to call back
+             //which will be received in main.js 'send message'
+             cb('Error! Please Enter a Valid Username');
+           }
+          } else{
+             cb('Error! Please Write a Message');
+           }
+          } else{
+             //new event to send to everyone
+             //just make sure all clients are ready to receive 'new message', goto main.js again
+             io.sockets.emit('new message', {
+               msg: data,
+               name: socket.nickname
+             });
+           }
      });
 
      //event for removing name when user disconnects
@@ -56,13 +82,14 @@ module.exports = function (io) {
        if(!socket.nickname){
          return;
        }else{
-         nicknames.splice(nicknames.indexOf(socket.nickname), 1);
+         delete users[socket.nickname];
          updateNames();
        }
      });
 
      function updateNames(){
-       io.sockets.emit('usernames', nicknames);
+       //not sending nicknames anymore, now sending object users
+       io.sockets.emit('usernames', Object.keys(users));
      }
 
    });

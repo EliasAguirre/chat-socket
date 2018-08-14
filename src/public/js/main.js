@@ -52,7 +52,9 @@ $(function(){
 
     //to actually send it, we need the socket, to send the mssg to the server, 'send message' being the event
     //event send message, and send $messageBox.val()
-    socket.emit('send message', $messageBox.val());
+    socket.emit('send message', $messageBox.val(), function(data){
+      $chat.append(`<p class="error">${data}</p>`);
+    });
     //to clean messageForm input ... nothing will be sent here until we make the server listen, after connected
     //stay listening in sockets.js COMMENT NAME: listen
     $messageBox.val('');
@@ -70,5 +72,9 @@ $(function(){
       html += `<p><i class="fas fa-user"></i>${data[i]}</p>`
     }
     $users.html(html);
+  });
+
+  socket.on('private', function(data){
+    $chat.append(`<p class="private"><b>${data.nick}:</b>${data.message}</p>`);
   });
 })
