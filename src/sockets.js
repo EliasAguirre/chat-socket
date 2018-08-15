@@ -1,3 +1,5 @@
+const Chat = require('./models/Chat');
+
 //in charge of accepting socket connection
 //send events, receive them etc.
 //just like that it doesnt work because the connections exists in index.js so make it a function
@@ -17,8 +19,12 @@ module.exports = function (io) {
 
   };
 
-   io.on('connection', socket => {
+   io.on('connection', async socket => {
      console.log('new user connected');
+
+     let messages = await Chat.find({});
+     socket.emit('load old mssgs', messages);
+     //now send to front end
 
      //recieving data plus a callback function which takes the data
      socket.on('new user', (data, cb) => {
@@ -32,10 +38,12 @@ module.exports = function (io) {
          updateNames();       }
      });
 
+     //instead of .save(function(){ }) use asynch await
+
      //listen to event from client, exactly same NAME
      //event waiting for here is send message
      //on that event we will receive data ($messageBox.val())
-     socket.on('send message', function (data, cb){
+     socket.on('send message', async function (data, cb){
        console.log(data);
        //NOW, RETRANSMIT TO ALL USERS IN APPLICATION FROM SERVER
        //socket is just the connection from one client to the SERVER
@@ -68,6 +76,14 @@ module.exports = function (io) {
              cb('Error! Please Write a Message');
            }
           } else{
+            //save to db
+            var newMsg = new Chat({
+              mssg ,
+              nick: socket.nickname
+            });
+
+            await newMsg.save();
+
              //new event to send to everyone
              //just make sure all clients are ready to receive 'new message', goto main.js again
              io.sockets.emit('new message', {

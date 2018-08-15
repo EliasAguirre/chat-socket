@@ -77,4 +77,14 @@ $(function(){
   socket.on('private', function(data){
     $chat.append(`<p class="private"><b>${data.nick}:</b>${data.message}</p>`);
   });
+
+  socket.on('load old mssgs', function(data){
+    for(let i = 0; i < data.length; i++){
+      displayMessages(data[i]);
+    }
+  });
+
+  function displayMessages(){
+    $chat.append(`<p class="private"><b>${data.nick}:</b>${data.message}</p>`);
+  };
 })

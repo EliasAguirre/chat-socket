@@ -10,6 +10,17 @@ const path = require('path');
 //js object with methods to create server, from express function
 const app = express();
 
+const mongoose = require('mongoose');
+
+//db connections
+//takes in database to access, in this case we will give it the local
+//database (running local)
+mongoose.connect('mongodb://localhost/chat-database').then(function(db){
+  console.log("database connected").catch(function(err){
+    console.log(err);
+  });
+});
+
 //real time functionality using Websocket
 //avoid stayless, user goes in and asks server for something, server responds
 //npm install socket.io
