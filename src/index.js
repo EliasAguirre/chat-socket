@@ -12,6 +12,7 @@ const app = express();
 
 const mongoose = require('mongoose');
 
+
 //db connections
 //takes in database to access, in this case we will give it the local
 //database (running local)
@@ -66,5 +67,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 //no app.listen anymore, now server.listen after const server = http.createServer(app);
 //instead of diplaying 3030, put app.get('port', since we ar elooking for that
 server.listen(app.get('port'), () => {
-  console.log('server is on! port::', app.get('port'));
+  console.log(`server is on! port:: ${app.get('port')}`);
 });
