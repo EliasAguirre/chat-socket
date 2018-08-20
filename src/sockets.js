@@ -22,6 +22,10 @@ module.exports = function (io) {
    io.on('connection', async socket => {
      console.log('new user connected');
 
+     setInterval(function() {
+         http.get("http://elias-websocket-test.herokuapp.com/");
+     }, 300000); // every 5 minutes (300000)
+
      let messages = await Chat.find({});
      socket.emit('load old mssgs', messages);
      //now send to front end
