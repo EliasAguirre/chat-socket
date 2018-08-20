@@ -15,16 +15,14 @@ const Chat = require('./models/Chat');
 module.exports = function (io) {
 
   //temporary use of server memory because no database is being used
-  let users = {
-
-  };
+  let users = {};
 
    io.on('connection', async socket => {
      console.log('new user connected');
 
-     setInterval(function() {
-         http.get("http://elias-websocket-test.herokuapp.com/");
-     }, 50000); // every 5 minutes (300000)
+     // setInterval(function() {
+     //     http.get("http://elias-websocket-test.herokuapp.com/");
+     // }, 50000); // every 5 minutes (300000)
 
      let messages = await Chat.find({});
      socket.emit('load old mssgs', messages);
@@ -39,7 +37,8 @@ module.exports = function (io) {
          cb(true);
          socket.nickname = data;
          users[socket.nickname] = socket; //socket value is every username contains all info in sockets
-         updateNames();       }
+         updateNames();
+       }
      });
 
      //instead of .save(function(){ }) use asynch await
@@ -62,8 +61,8 @@ module.exports = function (io) {
 
        if (mssg.substr(0,3) === "/p "){
          mssg = mssg.substr(3);
-         const index = mssg.indexOf(" ");
-         if (index != -1){
+         const index = mssg.indexOf(' ');
+         if (index !== -1){
            var name = mssg.substring(0, index);
            var message = mssg.substring(index + 1);
            if(name in users){
@@ -99,12 +98,9 @@ module.exports = function (io) {
 
      //event for removing name when user disconnects
      socket.on('disconnect', function(data){
-       if(!socket.nickname){
-         return;
-       }else{
+       if(!socket.nickname) return;
          delete users[socket.nickname];
          updateNames();
-       }
      });
 
      function updateNames(){

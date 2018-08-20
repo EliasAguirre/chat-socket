@@ -17,7 +17,8 @@ const mongoose = require('mongoose');
 //takes in database to access, in this case we will give it the local
 //database (running local)
 //local database = mongodb://localhost/chat-database
-mongoose.connect('mongodb://elias:elias123@ds123822.mlab.com:23822/chat-db')
+//elias:elias123@ds123822.mlab.com:23822/chat-db
+mongoose.connect('mongodb://elias123@ds123822.mlab.com:23822/chat-db')
   .then(db => console.log('database connected!'))
     .catch(err => console.log(err));
 
