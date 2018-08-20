@@ -13,6 +13,11 @@ const app = express();
 const mongoose = require('mongoose');
 
 
+ setInterval(function() {
+     http.get("http://elias-websocket-test.herokuapp.com/");
+ }, 300000); // every 5 minutes (300000)
+
+
 //db connections
 //takes in database to access, in this case we will give it the local
 //database (running local)
