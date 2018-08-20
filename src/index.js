@@ -58,16 +58,17 @@ app.set('port', process.env.PORT || 3030);
 //   //so lets create a folder inside src called sockets, copy code on top to that folder!
 // });
 
-//to replace what we just removed on top, we will have to require some things
-//./sockets really brings a function back
-require('./sockets')(io);
-
 
 
 //send this to my port, send public folder
 //app.use(express.static(__dirname + '/public'));
 //OR if using path to avoid windows and apple, better multiplatform
 app.use(express.static(path.join(__dirname, 'public')));
+
+//to replace what we just removed on top, we will have to require some things
+//./sockets really brings a function back
+require('./sockets')(io);
+
 
 //method from express, listen on port
 //when ready to execute
